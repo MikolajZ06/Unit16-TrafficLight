@@ -11,62 +11,38 @@ using System.Windows.Forms;
 
 namespace Unit16_TrafficLight
 {
-    enum LightColor
-    {
-        Green,
-        Yellow,
-        Red,
-        Off
-    }
-
-    class LightCycle
-    {
-        public LightColor[,] lightCycle = { { LightColor.Green, LightColor.Off, LightColor.Off },
-            { LightColor.Red, LightColor.Off, LightColor.Off } };
-
-        int cycleStage = 0;
-        LightColor currentStage = lightCycle[0];
-
-        public LightCycle(Side side)
-        {
-            if (side == Side.Right)
-                cycleStage = 1;
-        }
-
-        void NextStage()
-        {
-            if (currentStage + 1 == lightCycle.Length())
-            {
-                currentStage = lightCycle[0];
-                return;
-            }
-
-            currentStage = lightCycle[++cycleStage];
-        }
-    }
     public partial class Form1 : Form
     {
+
+        TrafficLight leftlight;
+        TrafficLight rightlight;
         public Form1()
         {
             InitializeComponent();
+            leftlight = new TrafficLight(Side.Left, Size.Width, Size.Height);
+            rightlight = new TrafficLight(Side.Right, Size.Width, Size.Height);
+            var timer = new System.Timers.Timer();
+            timer.Interval = 4000;
 
+            timer.Elapsed += OnCycle;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+
+        }
+
+        void OnCycle(object source, System.Timers.ElapsedEventArgs e)
+        {
+            leftlight.OnCycle();
+            rightlight.OnCycle();
+            this.Invalidate();
         }
 
 
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            var leftLight = new TrafficLight(Side.Left, e, Size.Width, Size.Height);
-            var rightLight = new TrafficLight(Side.Right, e, Size.Width, Size.Height);
-
-            leftLight.Draw(leftCycle.currentStage);
-            rightLight.Draw(rightCycle.currentStage);
-
-            LightCycle leftCycle = new LightCycle();
-            LightCycle rightCycle = new LightCycle();
-
-            leftCycle.NextStage();
-            rightCycle.NextStage();
+            leftlight.Draw(e);
+            rightlight.Draw(e);
 
         }
     }

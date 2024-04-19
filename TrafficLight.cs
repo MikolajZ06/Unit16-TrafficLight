@@ -1,6 +1,10 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Unit16_TrafficLight;
+
 public enum Side { 
     Left,
     Right
@@ -9,25 +13,33 @@ public enum Side {
 public class TrafficLight
 {
     public Side side;
-    public PaintEventArgs paintArgs;
     public int windowHeight;
     public int windowWidth;
+    LightCycle lightCycle;
 
-    public TrafficLight(Side side, PaintEventArgs e,int windowWidth, int windowHeight)
+    public TrafficLight(Side side,int windowWidth, int windowHeight)
     {
+        lightCycle = new LightCycle(side);
         this.side = side;
-        this.paintArgs = e;
         this.windowHeight = windowHeight;
         this.windowWidth = windowWidth;
     }
 
-    public void Draw()
+    public void Draw(PaintEventArgs e)
     {
-        DrawBox();
-        DrawCircles();
+        Console.WriteLine(lightCycle.GetLightColor(1));
+        DrawBox(e);
+        DrawCircles(lightCycle, e);
+
+
     }
 
-    void DrawBox()
+    public void OnCycle()
+    {
+        lightCycle.NextStage();
+    }
+
+    void DrawBox(PaintEventArgs e)
     {
         int rectHeight = 400;
         int rectWidth = 200;
@@ -43,13 +55,15 @@ public class TrafficLight
         var gp = new System.Drawing.Drawing2D.GraphicsPath();
         gp.AddRectangle(rect);
 
-        paintArgs.Graphics.FillRegion(Brushes.Black, new Region(gp));
+        e.Graphics.FillRegion(Brushes.Black, new Region(gp));
     }
 
-    void DrawCircles()
+    void DrawCircles(LightCycle cycle, PaintEventArgs e)
     {
         for (int i = 0; i < 3; i++)
         {
+            Console.WriteLine("redrawing the lights");
+
             var gp = new System.Drawing.Drawing2D.GraphicsPath();
 
             int circleWidth = 100;
@@ -58,13 +72,10 @@ public class TrafficLight
             if (side == Side.Right)
                 circleX = windowWidth - circleWidth - 100;
             gp.AddEllipse(circleX, 80 + (i * 120), circleWidth, 100);
-            var region = new System.Drawing.Region(gp);
+            var region = new Region(gp);
 
-            Graphics gr = paintArgs.Graphics;
-            gr.FillRegion(Brushes.DarkGray, region);
-
-            
-            
+            Graphics gr = e.Graphics;
+            gr.FillRegion(cycle.GetLightColor(i), region);
         }
     }
 }
