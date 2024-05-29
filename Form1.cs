@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -44,6 +46,13 @@ namespace Unit16_TrafficLight
             leftlight.Draw(e);
             rightlight.Draw(e);
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Process.Start(Assembly.GetExecutingAssembly().Location);
+
+            Environment.Exit(0);
         }
     }
 }
